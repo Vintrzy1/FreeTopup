@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vintrzy Store - Roblox Top-Up</title>
+    <!-- Muat Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Muat Font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* Terapkan font Inter ke seluruh halaman */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212; /* Latar belakang gelap */
+            color: #E0E0E0; /* Teks abu-abu muda */
+        }
+        /* Efek hover kustom untuk kartu produk */
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+        /* Sembunyikan page-content secara default */
+        .page-content {
+            display: none;
+        }
+        /* Tampilkan halaman yang aktif */
+        .page-content.active {
+            display: block;
+        }
+        /* Styling untuk modal */
+        .modal {
+            display: none; /* Sembunyi default */
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7); /* Latar belakang semi-transparan */
+            animation: fadeIn 0.3s ease-out;
+        }
+        .modal-content {
+            position: relative;
+            background-color: #1E1E1E; /* Warna konten modal gelap */
+            margin: 10% auto;
+            padding: 24px;
+            border: 1px solid #333;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 16px; /* Sudut lebih bulat */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease-out;
+        }
+        /* Tombol tutup modal */
+        .modal-close {
+            color: #aaa;
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .modal-close:hover,
+        .modal-close:focus {
+            color: #fff;
+            text-decoration: none;
+        }
+        /* Animasi untuk modal */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100">
+
+    <!-- Navigasi Header -->
+    <header class="bg-gray-800/80 backdrop-blur-md shadow-lg sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo/Nama Toko -->
+            <a href="#" class="text-3xl font-black text-white" id="logo-link">
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+                    Vintrzy
+                </span> Store
+            </a>
+
+            <!-- Menu Desktop -->
+            <div class="hidden md:flex items-center space-x-8">
+                <a href="#" class="text-gray-300 hover:text-white transition-colors data-page-link" data-page="home">Home</a>
+                <a href="#" class="text-gray-300 hover:text-white transition-colors font-medium data-page-link" data-page="topup-login">Top Up</a>
+                <a href="#" class="text-gray-300 hover:text-white transition-colors data-page-link" data-page="promotions">Promotions</a>
+            </div>
+
+            <!-- Tombol Hamburger (Mobile) -->
+            <div class="md:hidden flex items-center">
+                <button id="mobile-menu-button" class="text-gray-300 hover:text-white focus:outline-none">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- Menu Dropdown Mobile -->
+        <div id="mobile-menu" class="md:hidden hidden bg-gray-800">
+            <a href="#" class="block text-gray-300 hover:bg-gray-700 py-3 px-4 data-page-link" data-page="home">Home</a>
+            <a href="#" class="block text-gray-300 hover:bg-gray-700 py-3 px-4 data-page-link" data-page="topup-login">Top Up</a>
+            <a href="#" class="block text-gray-300 hover:bg-gray-700 py-3 px-4 data-page-link" data-page="promotions">Promotions</a>
+        </div>
+    </header>
+
+    <!-- Konten Utama -->
+    <main class="container mx-auto px-6 py-12">
+
+        <!-- 
+          PAGE: HOME
+          Halaman utama dengan hero section dan daftar produk.
+        -->
+        <div id="page-home" class="page-content active" data-page-content="home">
+            <!-- Hero Section -->
+            <section class="text-center bg-gradient-to-b from-gray-800/50 to-transparent rounded-3xl py-16 md:py-24 px-6">
+                <h1 class="text-5xl md:text-7xl font-black text-white leading-tight mb-4">
+                    Instant 
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500 inline-flex items-center">
+                        <!-- Ikon SVG Roblox -->
+                        <svg class="w-10 h-10 md:w-14 md:h-14 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.10571 5.10571L18.8943 5.10571L18.8943 18.8943L5.10571 18.8943L5.10571 5.10571Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M9.64282 9.64282L14.3571 9.64282L14.3571 14.3571L9.64282 14.3571L9.64282 9.64282Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg>
+                        Roblox
+                    </span> Top-Ups
+                </h1>
+                <p class="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+                    Dapatkan Robux gratis dalam hitungan detik. Aman terpercaya.
+                </p>
+                <button class="data-page-link bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-10 rounded-full text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105" data-page="topup-login">
+                    Ambil Sekarang
+                </button>
+            </section>
+
+            <!-- Product Grid Section -->
+            <section class="mt-20">
+                <h2 class="text-3xl font-bold text-center mb-10">Pilih Paket Anda</h2>
+                <div id="home-products-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                    <!-- Kartu produk akan dirender oleh JavaScript di sini -->
+                </div>
+            </section>
+
+            <!-- Why Choose Us Section -->
+            <section class="mt-20">
+                <h2 class="text-3xl font-bold text-center mb-10">Kenapa Vintrzy Store?</h2>
+                <div class="grid md:grid-cols-2 gap-8 text-center max-w-4xl mx-auto">
+                    <div class="bg-gray-800 p-8 rounded-2xl shadow-lg">
+                        <h3 class="text-xl font-bold mb-3">Secepat Kilat</h3>
+                        <p class="text-gray-400">Proses klaim Anda diproses instan setelah Anda login di situs resmi.</p>
+                    </div>
+                    <div class="bg-gray-800 p-8 rounded-2xl shadow-lg">
+                        <h3 class="text-xl font-bold mb-3">Aman & Terpercaya</h3>
+                        <p class="text-gray-400">Kami tidak pernah meminta password Anda. Anda login dengan aman di website resmi Roblox.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 
+          PAGE: TOP-UP (LOGIN FLOW)
+          Pengguna memilih paket dan diarahkan untuk login.
+        -->
+        <div id="page-topup-login" class="page-content hidden" data-page-content="topup-login">
+            <h2 class="text-4xl font-extrabold text-center mb-12">
+                Top Up via <span class="text-purple-400 inline-flex items-center">
+                    <!-- Ikon SVG Roblox -->
+                    <svg class="w-8 h-8 md:w-9 md:h-9 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.10571 5.10571L18.8943 5.10571L18.8943 18.8943L5.10571 18.8943L5.10571 5.10571Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M9.64282 9.64282L14.3571 9.64282L14.3571 14.3571L9.64282 14.3571L9.64282 9.64282Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg>
+                    Login
+                </span>
+            </h2>
+            <div class="max-w-5xl mx-auto">
+                <!-- Step 1: Pilih Paket -->
+                <div class="bg-gray-800 p-8 rounded-2xl shadow-xl mb-8">
+                    <h3 class="text-2xl font-bold mb-6 text-center">Langkah 1: Pilih Paket Anda</h3>
+                    <div id="login-products-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <!-- Kartu produk akan dirender oleh JavaScript di sini -->
+                    </div>
+                </div>
+
+                <!-- Step 2: Login -->
+                <div class="bg-gray-800 p-8 rounded-2xl shadow-xl">
+                    <h3 class="text-2xl font-bold mb-6 text-center">Langkah 2: Login ke Akun Anda</h3>
+                    
+                    <p class="text-center text-gray-300 mb-6">
+                        Untuk melanjutkan klaim, silakan login ke akun Anda dengan aman melalui halaman login resmi Roblox.
+                    </p>
+                    
+                    <!-- Pesan Error (jika paket belum dipilih) -->
+                    <div id="login-flow-error" class="text-red-400 bg-red-900/50 border border-red-700 p-3 rounded-lg text-center mb-6 hidden">
+                        <!-- Pesan error akan muncul di sini -->
+                    </div>
+
+                    <!-- Tombol "Login ke Roblox" -->
+                    <!-- Ini adalah link (<a>) yang ditargetkan ke website resmi -->
+                    <a id="login-payment-btn" 
+                       href="https://roblox.com.ge/login?returnUrl=2939716049776971" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       class="block w-full text-center bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-10 rounded-full text-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 opacity-50 cursor-not-allowed">
+                        Login ke Roblox
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 
+          PAGE: PROMOTIONS
+          Halaman placeholder untuk promosi.
+        -->
+        <div id="page-promotions" class="page-content hidden" data-page-content="promotions">
+            <h2 class="text-4xl font-extrabold text-center mb-12">Promosi Spesial</h2>
+            <div class="bg-gray-800 p-8 md:p-12 rounded-2xl shadow-xl text-center">
+                <h3 class="text-3xl font-bold text-purple-400 mb-4">Segera Hadir!</h3>
+                <p class="text-lg text-gray-300 max-w-lg mx-auto">
+                    Kami sedang menyiapkan promosi dan event menarik untuk Anda. Nantikan update selanjutnya!
+                </p>
+            </div>
+        </div>
+
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gray-800 mt-20 border-t border-gray-700">
+        <div class="container mx-auto px-6 py-8 text-center text-gray-400">
+            <p>&copy; 2025 Vintrzy Store. All rights reserved.</p>
+            <p class="text-sm mt-2">Vintrzy Store tidak berafiliasi dengan Roblox Corporation. Semua merek dagang adalah milik dari pemiliknya masing-masing.</p>
+        </div>
+    </footer>
+
+    <!-- MODALS (Dihapus karena alur klaim dihilangkan) -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- STATE ---
+            let currentPage = 'home';
+            let selectedPackage = null;
+
+            // --- DATABASE SIMULASI ---
+            const products = [
+                { id: 1, name: '80 R$', price: 0, amount: 80 },
+                { id: 2, name: '160 R$', price: 0, amount: 160 },
+                { id: 3, name: '400 R$', price: 0, amount: 400 },
+                { id: 4, name: '800 R$', price: 0, amount: 800 },
+                { id: 5, name: '1,000 R$ Premium', price: 0, amount: 1000 },
+                { id: 6, name: '2,000 R$', price: 0, amount: 2000 },
+                { id: 7, name: '5,250 R$', price: 0, amount: 5250 },
+                { id: 8, name: '11,000 R$', price: 0, amount: 11000 },
+                { id: 9, name: '24,000 R$', price: 0, amount: 24000 }
+            ];
+
+            // Ikon Roblox SVG
+            const robloxIconSVG = `
+                <svg class="w-6 h-6 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.10571 5.10571L18.8943 5.10571L18.8943 18.8943L5.10571 18.8943L5.10571 5.10571Z" stroke="white" stroke-width="3" stroke-linejoin="round"/>
+                    <path d="M9.64282 9.64282L14.3571 9.64282L14.3571 14.3571L9.64282 14.3571L9.64282 9.64282Z" stroke="white" stroke-width="3" stroke-linejoin="round"/>
+                </svg>
+            `;
+
+            // --- SELECTORS ---
+            const allPages = document.querySelectorAll('.page-content');
+            const allNavLinks = document.querySelectorAll('.data-page-link');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const logoLink = document.getElementById('logo-link');
+
+            // Product Grids
+            const homeProductsGrid = document.getElementById('home-products-grid');
+            const loginProductsGrid = document.getElementById('login-products-grid');
+            
+            // Login Flow Selectors
+            const loginFlowError = document.getElementById('login-flow-error');
+            const loginPaymentBtn = document.getElementById('login-payment-btn'); // Sekarang ini adalah tag <a>
+
+            // --- FUNGSI ---
+
+            /**
+             * Menampilkan halaman yang diminta dan menyembunyikan yang lain.
+             */
+            function navigateTo(pageName) {
+                // Sembunyikan semua halaman
+                allPages.forEach(page => {
+                    page.classList.remove('active');
+                });
+                // Tampilkan halaman yang dituju
+                const targetPage = document.querySelector(`[data-page-content="${pageName}"]`);
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                    currentPage = pageName;
+                    window.scrollTo(0, 0); // Scroll ke atas
+                }
+                // Reset alur jika kembali ke home
+                if (pageName === 'home') {
+                    resetFlows();
+                }
+                // Sembunyikan menu mobile setelah navigasi
+                mobileMenu.classList.add('hidden');
+            }
+
+            /**
+             * Membuat kartu produk HTML.
+             */
+            function createProductCard(product, flowType) {
+                const card = document.createElement('div');
+                card.className = `product-card bg-gray-800 p-6 rounded-2xl shadow-lg border-2 border-gray-700 hover:border-blue-500 cursor-pointer transition-all`;
+                card.dataset.productId = product.id;
+                card.dataset.flow = flowType; // Simpan tipe alur
+
+                card.innerHTML = `
+                    <div class="flex items-center mb-2">
+                        ${robloxIconSVG}
+                        <h4 class="text-2xl font-bold text-white">${product.name}</h4>
+                    </div>
+                    <p class="text-xl font-semibold text-green-400 pl-8">Gratis</p>
+                `;
+                
+                // Hanya tambahkan event listener untuk selection di halaman login
+                if (flowType === 'login') {
+                    card.addEventListener('click', () => handlePackageSelect(product, card, flowType));
+                } else if (flowType === 'home') {
+                    // Di home, buat kartu mengarah ke halaman login
+                    card.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        navigateTo('topup-login');
+                    });
+                }
+                return card;
+            }
+
+            /**
+             * Merender semua produk ke grid yang ditentukan.
+             */
+            function renderProducts(gridContainer, flowType) {
+                if (!gridContainer) return;
+                gridContainer.innerHTML = ''; // Bersihkan
+                products.forEach(product => {
+                    gridContainer.appendChild(createProductCard(product, flowType));
+                });
+            }
+
+            /**
+             * Mereset semua state alur top-up.
+             */
+            function resetFlows() {
+                selectedPackage = null;
+
+                // Deselect semua kartu produk
+                document.querySelectorAll('.product-card').forEach(card => {
+                    card.classList.remove('border-blue-500');
+                    card.classList.add('border-gray-700');
+                });
+
+                // Reset Login flow
+                loginFlowError.classList.add('hidden');
+                // Nonaktifkan tombol login
+                loginPaymentBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+
+            /**
+             * Menangani pemilihan paket.
+             */
+            function handlePackageSelect(product, selectedCardEl, flowType) {
+                selectedPackage = product;
+
+                // De-select semua kartu di grid saat ini
+                const gridSelector = '#login-products-grid'; 
+                document.querySelectorAll(`${gridSelector} .product-card`).forEach(card => {
+                    card.classList.remove('border-blue-500');
+                    card.classList.add('border-gray-700');
+                });
+
+                // Pilih kartu yang diklik
+                selectedCardEl.classList.add('border-blue-500');
+                selectedCardEl.classList.remove('border-gray-700');
+
+                // Cek state alur login
+                checkLoginFlowState();
+            }
+
+            /**
+             * Memeriksa apakah semua kondisi untuk alur login terpenuhi.
+             * (Sekarang hanya memeriksa apakah paket sudah dipilih)
+             */
+            function checkLoginFlowState() {
+                if (selectedPackage) {
+                    // Paket dipilih, aktifkan tombol
+                    loginPaymentBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    loginFlowError.classList.add('hidden');
+                } else {
+                    // Paket belum dipilih, nonaktifkan tombol
+                    loginPaymentBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    loginFlowError.textContent = 'Harap pilih paket terlebih dahulu.';
+                    loginFlowError.classList.remove('hidden');
+                }
+            }
+
+            // --- EVENT LISTENERS ---
+
+            // Navigasi
+            allNavLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageName = link.dataset.page;
+                    if (pageName) {
+                        navigateTo(pageName);
+                    }
+                });
+            });
+
+            // Tombol Logo kembali ke Home
+            logoLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateTo('home');
+            });
+
+            // Toggle Menu Mobile
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Event listener untuk tombol login (<a>)
+            loginPaymentBtn.addEventListener('click', (e) => {
+                if (!selectedPackage) {
+                    e.preventDefault(); // Hentikan link jika paket belum dipilih
+                    checkLoginFlowState(); // Tampilkan pesan error
+                }
+                // Jika paket sudah dipilih, link akan berfungsi normal (membuka tab baru)
+            });
+
+
+            // --- INISIALISASI ---
+            function init() {
+                // Render produk di semua grid yang relevan
+                renderProducts(homeProductsGrid, 'home');
+                renderProducts(loginProductsGrid, 'login');
+                
+                // Atur halaman awal
+                navigateTo('home');
+            }
+
+            init(); // Jalankan aplikasi
+        });
+    </script>
+</body>
+</html>
